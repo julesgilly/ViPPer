@@ -1,0 +1,58 @@
+<h2>Architecture ViPPer SaaS</h2>
+<p class="subtitle">Vue d'ensemble des composants — FastAPI + React</p>
+
+<div style="font-family: monospace; background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 2rem; margin: 1rem 0; font-size: 0.85rem; line-height: 1.8;">
+
+<div style="text-align:center; color:#818cf8; font-weight:bold; font-size:1rem; margin-bottom:1.5rem;">NAVIGATEUR UTILISATEUR</div>
+
+<div style="border: 1px solid #4f46e5; border-radius:8px; padding:1rem; margin-bottom:1rem;">
+  <div style="color:#a78bfa; font-weight:bold;">⚛️  FRONTEND — React + TypeScript (Vite)</div>
+  <div style="display:flex; gap:2rem; margin-top:0.5rem; flex-wrap:wrap;">
+    <span style="color:#6ee7b7;">📋 Formulaires saisie</span>
+    <span style="color:#6ee7b7;">📊 Visualisation résultats</span>
+    <span style="color:#6ee7b7;">📄 Note de calcul PDF</span>
+    <span style="color:#6ee7b7;">👤 Gestion compte</span>
+    <span style="color:#6ee7b7;">💳 Abonnement Stripe</span>
+  </div>
+</div>
+
+<div style="text-align:center; margin: 0.5rem 0; color:#64748b;">↕ HTTPS / REST API + WebSocket</div>
+
+<div style="border: 1px solid #0891b2; border-radius:8px; padding:1rem; margin-bottom:1rem;">
+  <div style="color:#38bdf8; font-weight:bold;">⚡ BACKEND — FastAPI (Python)</div>
+  <div style="display:flex; gap:2rem; margin-top:0.5rem; flex-wrap:wrap;">
+    <span style="color:#7dd3fc;">🔐 Auth (JWT)</span>
+    <span style="color:#7dd3fc;">🧮 Engine de calcul ViPPer</span>
+    <span style="color:#7dd3fc;">📦 Gestion projets</span>
+    <span style="color:#7dd3fc;">🔔 Webhooks Stripe</span>
+    <span style="color:#7dd3fc;">⚙️ Celery (calculs longs)</span>
+  </div>
+</div>
+
+<div style="display:flex; gap:1rem; margin-bottom:1rem;">
+  <div style="flex:1; border: 1px solid #065f46; border-radius:8px; padding:0.8rem;">
+    <div style="color:#34d399; font-weight:bold;">🗄️ PostgreSQL</div>
+    <div style="color:#86efac; font-size:0.8rem;">Utilisateurs · Abonnements · Projets</div>
+  </div>
+  <div style="flex:1; border: 1px solid #7c2d12; border-radius:8px; padding:0.8rem;">
+    <div style="color:#fb923c; font-weight:bold;">⚡ Redis</div>
+    <div style="color:#fdba74; font-size:0.8rem;">File d'attente calculs · Cache sessions</div>
+  </div>
+  <div style="flex:1; border: 1px solid #1e3a5f; border-radius:8px; padding:0.8rem;">
+    <div style="color:#60a5fa; font-weight:bold;">💳 Stripe</div>
+    <div style="color:#93c5fd; font-size:0.8rem;">Abonnements · Facturation · Portail client</div>
+  </div>
+</div>
+
+<div style="border: 1px solid #374151; border-radius:8px; padding:0.8rem;">
+  <div style="color:#9ca3af; font-weight:bold;">🐳 Docker — déployé sur VPS (ex: Hetzner) ou Railway/Render</div>
+</div>
+
+</div>
+
+<div class="section">
+  <h3>Pourquoi Celery + Redis ?</h3>
+  <p>Les calculs FEM de ViPPer peuvent prendre plusieurs secondes. Avec FastAPI seul, un calcul long bloquerait le serveur pour tous les autres utilisateurs. <strong>Celery</strong> envoie le calcul dans une file d'attente (Redis), le traite en arrière-plan, et notifie le frontend via WebSocket quand c'est terminé. L'UI affiche une barre de progression en attendant.</p>
+</div>
+
+<p class="subtitle">Est-ce que cette architecture te semble logique ? Réponds dans le terminal.</p>

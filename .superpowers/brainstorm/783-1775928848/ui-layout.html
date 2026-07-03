@@ -1,0 +1,93 @@
+<h2>UX/UI — Layout principal de l'interface de calcul</h2>
+<p class="subtitle">L'écran le plus important : saisie des données + visualisation en temps réel. Choisis le layout qui te semble le plus adapté.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Split — Formulaire gauche / Schéma droite (comme l'app Qt actuelle)</h3>
+      <div class="mockup" style="margin-top:0.8rem;">
+        <div class="mockup-header">ViPPer — Projet: Mur de soutènement - Rue des Lilas</div>
+        <div class="mockup-body" style="display:flex; gap:0; padding:0; min-height:200px;">
+          <!-- Sidebar étapes -->
+          <div style="width:140px; background:#1e293b; border-right:1px solid #334155; padding:0.5rem; flex-shrink:0;">
+            <div style="font-size:0.65rem; color:#64748b; text-transform:uppercase; padding:0.3rem 0.4rem;">Étapes</div>
+            <div style="background:#4f46e5; color:white; font-size:0.7rem; padding:0.3rem 0.5rem; border-radius:4px; margin:0.15rem 0;">✓ Projet</div>
+            <div style="background:#4f46e5; color:white; font-size:0.7rem; padding:0.3rem 0.5rem; border-radius:4px; margin:0.15rem 0;">✓ Sol</div>
+            <div style="background:#0f172a; color:#94a3b8; font-size:0.7rem; padding:0.3rem 0.5rem; border-radius:4px; margin:0.15rem 0; border:1px solid #334155;">→ Chargement</div>
+            <div style="background:#0f172a; color:#4b5563; font-size:0.7rem; padding:0.3rem 0.5rem; border-radius:4px; margin:0.15rem 0;">Béton</div>
+            <div style="background:#0f172a; color:#4b5563; font-size:0.7rem; padding:0.3rem 0.5rem; border-radius:4px; margin:0.15rem 0;">VPP</div>
+            <div style="background:#0f172a; color:#4b5563; font-size:0.7rem; padding:0.3rem 0.5rem; border-radius:4px; margin:0.15rem 0;">Résultats</div>
+          </div>
+          <!-- Formulaire -->
+          <div style="flex:1; padding:0.8rem; background:#0f172a; border-right:1px solid #334155;">
+            <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:0.4rem; font-weight:bold;">Chargement</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem;">
+              <div><div style="font-size:0.6rem; color:#64748b;">Surcharge exploitation</div><div style="background:#1e293b; border:1px solid #334155; border-radius:3px; padding:0.2rem 0.4rem; font-size:0.65rem; color:#e2e8f0;">10 kPa</div></div>
+              <div><div style="font-size:0.6rem; color:#64748b;">Angle d'inclinaison</div><div style="background:#1e293b; border:1px solid #4f46e5; border-radius:3px; padding:0.2rem 0.4rem; font-size:0.65rem; color:#e2e8f0;">0°</div></div>
+              <div><div style="font-size:0.6rem; color:#64748b;">Charge permanente</div><div style="background:#1e293b; border:1px solid #334155; border-radius:3px; padding:0.2rem 0.4rem; font-size:0.65rem; color:#e2e8f0;">5 kPa</div></div>
+              <div><div style="font-size:0.6rem; color:#64748b;">Nappe phréatique</div><div style="background:#1e293b; border:1px solid #334155; border-radius:3px; padding:0.2rem 0.4rem; font-size:0.65rem; color:#e2e8f0;">Non</div></div>
+            </div>
+          </div>
+          <!-- Schéma -->
+          <div style="flex:1; background:#0a0f1e; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0.5rem;">
+            <div style="font-size:0.6rem; color:#4b5563; text-transform:uppercase; margin-bottom:0.5rem;">Aperçu temps réel</div>
+            <svg viewBox="0 0 120 150" width="110" style="opacity:0.9;">
+              <!-- sol remblai -->
+              <rect x="20" y="10" width="60" height="90" fill="#78350f" opacity="0.3" rx="2"/>
+              <text x="50" y="58" fill="#92400e" font-size="7" text-anchor="middle">Remblai</text>
+              <!-- voile VPP -->
+              <rect x="75" y="10" width="12" height="120" fill="#4f46e5" opacity="0.8" rx="1"/>
+              <text x="81" y="145" fill="#818cf8" font-size="6" text-anchor="middle">VPP</text>
+              <!-- sol natif -->
+              <rect x="20" y="100" width="100" height="20" fill="#166534" opacity="0.3" rx="2"/>
+              <text x="70" y="113" fill="#16a34a" font-size="6" text-anchor="middle">Sol natif</text>
+              <!-- charges -->
+              <line x1="30" y1="10" x2="70" y2="10" stroke="#f59e0b" stroke-width="1.5"/>
+              <line x1="30" y1="5" x2="30" y2="12" stroke="#f59e0b" stroke-width="1"/>
+              <line x1="70" y1="5" x2="70" y2="12" stroke="#f59e0b" stroke-width="1"/>
+              <text x="50" y="8" fill="#f59e0b" font-size="5.5" text-anchor="middle">q=10kPa</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <p style="color:#94a3b8; font-size:0.8rem; margin-top:0.5rem;">Continuité avec l'app Qt. Navigation par étapes (wizard). Schéma évolue à chaque saisie.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Tabs — Onglets horizontaux avec résultats intégrés</h3>
+      <div class="mockup" style="margin-top:0.8rem;">
+        <div class="mockup-header">ViPPer — Mur de soutènement - Rue des Lilas</div>
+        <div class="mockup-body" style="padding:0; min-height:200px; background:#0f172a;">
+          <div style="display:flex; border-bottom:1px solid #334155; background:#1e293b;">
+            <div style="padding:0.4rem 0.8rem; font-size:0.7rem; color:#818cf8; border-bottom:2px solid #4f46e5;">Projet</div>
+            <div style="padding:0.4rem 0.8rem; font-size:0.7rem; color:#818cf8; border-bottom:2px solid #4f46e5;">Sol ✓</div>
+            <div style="padding:0.4rem 0.8rem; font-size:0.7rem; color:#e2e8f0; border-bottom:2px solid #4f46e5; background:#0f172a;">Chargement</div>
+            <div style="padding:0.4rem 0.8rem; font-size:0.7rem; color:#4b5563;">Béton</div>
+            <div style="padding:0.4rem 0.8rem; font-size:0.7rem; color:#4b5563;">VPP</div>
+            <div style="padding:0.4rem 0.8rem; font-size:0.7rem; color:#4b5563; margin-left:auto;">📊 Résultats</div>
+          </div>
+          <div style="padding:1rem; display:flex; gap:1rem;">
+            <div style="flex:1;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
+                <div><div style="font-size:0.6rem; color:#64748b;">Surcharge exploitation</div><div style="background:#1e293b; border:1px solid #4f46e5; border-radius:3px; padding:0.25rem 0.5rem; font-size:0.7rem; color:#e2e8f0;">10 kPa</div></div>
+                <div><div style="font-size:0.6rem; color:#64748b;">Charge permanente</div><div style="background:#1e293b; border:1px solid #334155; border-radius:3px; padding:0.25rem 0.5rem; font-size:0.7rem; color:#e2e8f0;">5 kPa</div></div>
+              </div>
+            </div>
+            <div style="width:100px; background:#0a0f1e; border-radius:6px; display:flex; align-items:center; justify-content:center;">
+              <div style="font-size:0.6rem; color:#4b5563; text-align:center;">Mini-aperçu<br>schéma</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="color:#94a3b8; font-size:0.8rem; margin-top:0.5rem;">Navigation plus libre. Aperçu schéma miniature. Accès rapide aux résultats sans finir toutes les étapes.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:1rem;">👉 Le layout A reste le plus proche de l'expérience Qt que tes utilisateurs attendent. Mais le choix est le tien.</p>

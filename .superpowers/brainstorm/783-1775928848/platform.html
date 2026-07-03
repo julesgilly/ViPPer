@@ -1,0 +1,52 @@
+<h2>Question 1 — Modèle de déploiement</h2>
+<p class="subtitle">C'est la décision architecturale la plus importante. Elle conditionne tout le reste : base de données utilisateurs, paiements, UX.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Application Desktop (Qt) — avec licence activée en ligne</h3>
+      <p>ViPPer reste une app Python/Qt installée sur le poste du bureau d'études. Un serveur de licences gère les abonnements. L'utilisateur se connecte une fois pour activer, puis travaille hors-ligne.</p>
+      <ul>
+        <li>✅ Pas de refonte de l'interface</li>
+        <li>✅ Données locales (sensibles pour les BEs)</li>
+        <li>✅ Performances maximales (calcul local)</li>
+        <li>⚠️ Distribution plus complexe (installeur, mises à jour)</li>
+        <li>⚠️ Piratage possible si la protection de licence est faible</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Application Web SaaS (navigateur)</h3>
+      <p>ViPPer devient une webapp (ex: FastAPI + React/Vue). Le calcul tourne côté serveur. L'utilisateur accède via navigateur, sans installation.</p>
+      <ul>
+        <li>✅ Abonnements & paiements natifs (Stripe intégré simplement)</li>
+        <li>✅ Mises à jour immédiates pour tous les utilisateurs</li>
+        <li>✅ Accessible depuis n'importe quel poste</li>
+        <li>⚠️ Réécriture complète de l'UI (gros chantier)</li>
+        <li>⚠️ Données projet envoyées sur un serveur (confidentialité)</li>
+        <li>⚠️ Coût d'hébergement (serveur de calcul)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Hybride — Desktop + Portail Web pour la gestion</h3>
+      <p>L'app de calcul reste en desktop Qt (performances, données locales). Un portail web léger gère les comptes, abonnements et téléchargements. Les deux communiquent via une API.</p>
+      <ul>
+        <li>✅ Meilleur des deux mondes</li>
+        <li>✅ Paiement & gestion via le web (simple avec Stripe)</li>
+        <li>✅ Données de projet restent locales</li>
+        <li>⚠️ Deux systèmes à maintenir</li>
+        <li>⚠️ Complexité d'intégration (token d'activation, API)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:1.5rem;">👉 Clique sur ton choix, puis réponds dans le terminal.</p>
