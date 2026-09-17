@@ -1,0 +1,5 @@
+# ViPPer 2.0.0 - versions validees le 17/09/2026 avec Python 3.14.3
+numpy==2.4.4
+matplotlib==3.10.8
+PyQt5==5.15.11
+pytest==9.0.3

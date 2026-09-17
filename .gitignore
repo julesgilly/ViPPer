@@ -3,3 +3,14 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 *.egg-info/
+
+# Sorties generees par le calcul ou par les outils (regenerables)
+Documents/Figures/
+Scripts/Calculations/ViPPer/
+graphify-out/
+Scripts/graphify-out/
+.superpowers/
+
+# Environnements Python locaux
+.venv/
+venv/
