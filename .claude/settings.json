@@ -1,4 +1,14 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(python main_calculation.py)",
+      "Bash(grep -rn \"Documents/Figures\\\\|Documents\\\\\\\\\\\\\\\\Figures\\\\|BASE_DIR\\\\|__file__\" Scripts/ --include=*.py)",
+      "Bash(python -c \"import numpy as np; print\\(np.__version__\\)\")",
+      "Bash(python \"Exemple 1.py\")",
+      "Bash(awk 'NR==346,NR==361{printf \"%d:%s$\\\\n\", NR, $0}' \"Exemple 1.py\")"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

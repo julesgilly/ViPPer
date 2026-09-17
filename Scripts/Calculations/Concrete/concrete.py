@@ -52,7 +52,7 @@ class _concrete:
         if fck <= 50:
             fctm = 0.3 * (fck**(2/3))
         else:
-            fctm = 2.12  *m.ln(1 + (fck + 8) / 10)
+            fctm = 2.12 * m.log(1 + (fck + 8) / 10)   # log = logarithme népérien en Python
         return fctm
 
     @classmethod

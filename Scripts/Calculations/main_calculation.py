@@ -83,7 +83,7 @@ uniform = Sol.surcharges.pl_uniforme_d(1, 0, sol_DEF, wallLength)
 lineique = Sol.surcharges.pl_lineique_d(1, 1, sol_DEF, wallLength)
 limi_uniform = Sol.surcharges.pl_uniforme_limitee(1, 1, 1, sol_DEF, wallLength)
 contigue_uniform = Sol.surcharges.pression_contigue(1, sol_DEF)"""
-aire_uniform = Sol.surcharges.pl_uniforme_limitee(0.85, 1, 1, sol_DEF, wallLength)
+aire_uniform = Sol.surcharges.pl_uniforme_limitee(0.85, 1, 1, sol1, wallLength)
 """risberme = Sol.surcharges.risberme({'height':2, 'length':1, 'inclination angle':45, 'density':25, 'c':10, 'friction angle':20}, wallLength)
 talus = Sol.surcharges.talus(1, {'height': 2, 'distance': 1, 'density': 25, 'c': 15, 'friction angle': 21}, sol_DEF, wallLength)
 print(talus)"""

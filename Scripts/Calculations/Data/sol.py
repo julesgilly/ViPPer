@@ -72,7 +72,7 @@ class SolInfo:
             self.computeTassement = computeTassement
 
         # Vérifier que le type de surcharges est dans la liste autorisée
-        if typeInterface.lower() not in ["interface frottante", "interface adhérante"]:
+        if typeInterface.lower() not in ["interface frottante", "interface adhérente"]:
             raise ValueError("Récupération des Données - Le type d'interface n'est pas correct")
                 
         # Check if 'tauxSolELS' is an int or a float. Otherwise (e.g: a str), raise an error

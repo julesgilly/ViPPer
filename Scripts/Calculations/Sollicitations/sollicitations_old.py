@@ -63,16 +63,6 @@ Improvement:
      - Create functions to write a document showing the results using ReportLab
 """ 
 import numpy as np 
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from pathlib import Path
-import math
-
-# Points et poids de Gauss-Legendre à 3 points sur [-1, 1].
-# Exact pour un polynôme de degré <= 5; ici p(x)*N(x) est de degré 4.
-_GAUSS_3PTS = ((-0.7745966692414834, 5.0 / 9.0),
-               (0.0,                 8.0 / 9.0),
-               (0.7745966692414834,  5.0 / 9.0))
 
 class BeamFEM(object):
     def __init__(self, elementInfo, problemData, FEData):
@@ -107,11 +97,21 @@ class BeamFEM(object):
         self.positionEle = self.positionElement(self.nele, self.x, self.eleNumb)
         self.freeNodeNumb, self.supportNodeNumb, self.vertSupportNodeNumb, self.displacedNodeNumb, self.delta_fn = self.nodeNumbering(self.fixity, self.nodeDOFs)
     
-    def main(self):        
+    def main(self):
+        # import modules
+        import time
+        
+        t1 = time.time()
+        
         # Create variables for computation
         K = np.zeros((self.nnodes*self.nDOFs, self.nnodes*self.nDOFs))
         f = np.zeros((self.nnodes*self.nDOFs, 1))
         displacement = np.zeros((self.nnodes*self.nDOFs, 1))
+        
+        # To get more precise results, increase this value to at least 500
+        # To get faster results, decrease this value but no lower than 100
+        # To get good results and good computation time, use a value between 250-350
+        numberOfIntegrationPoint = 100
         
         # Loop over the number of elements
         for i in range(self.nele):
@@ -131,10 +131,10 @@ class BeamFEM(object):
             x_ip1 = self.positionEle[i,1]
             
             # Compute the element stiffness matrix
-            K_i = self.elementStiffnessMatrix(x_i, x_ip1, E_modulus, Area, Inertia)
+            K_i = self.elementStiffnessMatrix(x_i, x_ip1, numberOfIntegrationPoint, E_modulus, Area, Inertia)
             
             # Compute the element load vector
-            f_i = self.elementLoadVector(x_i, x_ip1, self.p)
+            f_i = self.elementLoadVector(x_i, x_ip1, self.p, numberOfIntegrationPoint)
             
             # Assemble the global stiffness matrix
             K[self.eleNumb[i,0]*3-3:self.eleNumb[i,1]*3, self.eleNumb[i,0]*3-3:self.eleNumb[i,1]*3] += K_i
@@ -219,10 +219,14 @@ class BeamFEM(object):
 
     
     def plot(self, elementInfo):
+        # import modules
+        import matplotlib.pyplot as plt
+        import matplotlib.patches as patches
+        import os
         
         # Plots
         # Set figure size used to save the figures and use them in the final report
-        fig = plt.figure(figsize=(20,10))
+        plt.figure(figsize=(20,10))
 
         # Placing the plots in the plane        
         plot1 = plt.subplot2grid((16,4), (0,0), rowspan = 4, colspan = 4) # Deformed shape
@@ -255,11 +259,11 @@ class BeamFEM(object):
         # Packing all the plots and displaying them
         plt.tight_layout()
 
-        # Sauvegarder les figures en JPEG
-        directory = Path('ViPPer/Documents/Figures')
-        directory.mkdir(parents=True, exist_ok=True)   # évite FileNotFoundError au premier lancement
-        fig.savefig(directory / f"sollicitations_{elementInfo['name']}.jpeg", dpi=300)
-        plt.close(fig)   # indispensable: sinon chaque combinaison calculée laisse une figure en mémoire
+         # Sauvegarder les figures en PNG
+        # Chemin relatif au fichier (et non au répertoire courant, qui varie selon le point d'entrée)
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        directory = os.path.join(repo_root, 'Documents', 'Figures')
+        plt.savefig(os.path.join(directory, f"sollicitations_{elementInfo['name']}.jpeg"), dpi=300)
         
         # plt.show()
         # print(f"Min. displacement: {np.min(self.verticalDisplacement): 0.5f} m, Max. displacement: {np.max(self.verticalDisplacement): 0.5f} m")
@@ -267,6 +271,9 @@ class BeamFEM(object):
         # print(f"Min. shear force: {np.min(self.shearForce):0.5f} MN, Max. shear force: {np.max(self.shearForce):0.5f} MN")
         
     def subplot(self, plot_xy, x, y):
+        # import modules
+        import matplotlib.pyplot as plt
+        import matplotlib.patches as patches
 
         # Plot 
         plot_xy.plot(x, y, color = 'fuchsia')
@@ -334,18 +341,20 @@ class BeamFEM(object):
         C = np.array([C1, C2, C3, C4])
         return C
 
-    def flexureStiffnessMatrix(self, x_i, x_ip1, E, I):
-        """ Compute the flexural part of the element Stiffness matrix.
-        Forme fermée exacte de l'élément d'Euler-Bernoulli (fonctions de forme
-        d'Hermite), DDL: [v_i, theta_i, v_j, theta_j]. Remplace l'intégration
-        numérique à 250 points (plus lente et biaisée d'environ 0.4%). """
-        h = x_ip1 - x_i
-        return (E * I / h**3) * np.array([
-            [ 12.0,    6.0*h,   -12.0,    6.0*h  ],
-            [  6.0*h,  4.0*h*h,  -6.0*h,  2.0*h*h],
-            [-12.0,   -6.0*h,    12.0,   -6.0*h  ],
-            [  6.0*h,  2.0*h*h,  -6.0*h,  4.0*h*h],
-        ])
+    def flexureStiffnessMatrix(self, x_i, x_ip1, numberOfIntegrationPoints, E, I):
+        """ Compute the flexural part of the element Stiffness matrix """
+        # Create variables for computation
+        x = np.linspace(x_i, x_ip1, numberOfIntegrationPoints)
+        fx = 0
+        # Loop over the position x on the element
+        for i in range(len(x)):
+            # Add the product to the numerical integration sum
+            fx += np.transpose([self.derivativesShapeFunctionsVector(x[i], x_i, x_ip1)]).dot([self.derivativesShapeFunctionsVector(x[i], x_i, x_ip1)])
+        # Compute the integration
+        area = fx*(x_ip1-x_i)/numberOfIntegrationPoints
+        # Compute the element stiffness matrix
+        K = E*I*area
+        return K
     
     def axialStiffnessmatrix(self, x_i, x_ip1, E, A):
         """ Compute the axial part of the element stiffness matrix """
@@ -367,43 +376,56 @@ class BeamFEM(object):
         Gamma[np.ix_([3,4], [3,4])] = subGamma
         return Gamma
     
-    def elementStiffnessMatrix(self, x_i, x_ip1, E, A, I):
+    def elementStiffnessMatrix(self, x_i, x_ip1, numberOfIntegrationPoints, E, A, I):
         K = np.zeros((6,6))
-        K1 = self.flexureStiffnessMatrix(x_i, x_ip1, E, I)
+        K1 = self.flexureStiffnessMatrix(x_i, x_ip1, numberOfIntegrationPoints, E, I)
         K2 = self.axialStiffnessmatrix(x_i, x_ip1, E, A)
         # Affect each term of submatrices to the right term of K
         K[np.ix_([0, 3], [0, 3])] = K2
         K[np.ix_([1, 2, 4, 5], [1, 2, 4, 5])] = K1
         return K
     
-    def elementLoadVector(self, x_i, x_ip1, distributedLoad):
-        """ Compute the element load vector (vecteur de charge consistant).
-        Quadrature de Gauss à 3 points par charge: exacte pour les charges
-        'uniform' et 'linear', y compris quand l'emprise d'une charge
-        commence ou s'arrête à l'intérieur de l'élément. """
-        f = np.zeros((6, 1))
-        fx = np.zeros(4)
+    def loadVector(self, x_i, x_ip1, distributedLoad, numberOfIntegrationPoints):
+        """ Create an array for the load used for the integration of the element load vector
+        Limiation: only works for linear loads """
+        # Create variable
+        x = np.linspace(x_i, x_ip1, numberOfIntegrationPoints)
+        f = np.zeros((1, numberOfIntegrationPoints))
+        # Loop over the number of loads
         for i in range(distributedLoad.shape[0]):
-            if distributedLoad[i, 0] not in ('linear', 'uniform'):
-                continue
-            x_min, x_max = float(distributedLoad[i, 1]), float(distributedLoad[i, 2])
-            p_min, p_max = float(distributedLoad[i, 3]), float(distributedLoad[i, 4])
-            if x_max <= x_min:
-                continue
-            # Intersection entre l'élément [x_i, x_ip1] et l'emprise de la charge
-            a, b = max(x_i, x_min), min(x_ip1, x_max)
-            if a >= b:
-                continue
-            jacobien = (b - a) / 2.0
-            for xi, w in _GAUSS_3PTS:
-                x_g = (a + b) / 2.0 + xi * jacobien
-                p_g = p_min + (p_max - p_min) * (x_g - x_min) / (x_max - x_min)
-                fx += w * jacobien * p_g * self.shapeFunctionsVector(x_g, x_i, x_ip1)
-        f[np.ix_([1, 2, 4, 5])] = fx.reshape(4, 1)
+            # Define variable to make code easier to read
+            x_min, x_max = float(distributedLoad[i,1]), float(distributedLoad[i,2])
+            p_min, p_max = float(distributedLoad[i,3]), float(distributedLoad[i,4])
+            # Loop over the position x on the element
+            for j in range(len(x)):
+                # Test to find if the element is subjectetd to load i
+                if x[j]>=x_min and x[j]<x_max:
+                    if distributedLoad[i,0] == 'linear' or distributedLoad[i,0] == 'uniform':
+                        # Change value of vector f at location x[i]
+                        f[0,j] += (p_max - p_min)/(x_max - x_min)*(x[j] - x_min) + p_min 
+                    # elif distributedLoad[i,0] == 'other type' (example 'exponential'):
+                        # Complete this code
+        return f
+
+    def elementLoadVector(self, x_i, x_ip1, distributedLoad, numberOfIntegrationPoints):
+        """Compute the element load vector using numerical integration """
+        # Create variables for computation
+        x = np.linspace(x_i, x_ip1, numberOfIntegrationPoints)
+        fx = 0
+        f = np.zeros((6,1))
+        # Call previous function to get the vector of loads for every integration points
+        p = self.loadVector(x_i, x_ip1, distributedLoad, numberOfIntegrationPoints)
+        # Loop over the position x on the element
+        for i in range(len(x)):
+            # Add the product to the numerical integration sum
+            fx += p[0,i] * np.transpose([self.shapeFunctionsVector(x[i], x_i, x_ip1)])
+        # Compute the element load vector
+        f[np.ix_([1,2,4,5])] = fx * (x_ip1-x_i)/numberOfIntegrationPoints
         return f
 
     def nodeNumbering(self, fixity, nodeDOFs):
         """ Create an array containing the number of the free DOFs"""
+        import math
         # Create variables for computation
         freeNodeNumb, supportNodeNumb, vertSupportNodeNumb, displacedNodeNumb = [], [], [], []
         # list containing the value of the displacement of the displaced nodes 

@@ -130,33 +130,23 @@ class Output(object):
                 V_DEF_ELU += combinaisons["Q"] * value["P"]
 
         # Create the output dict
-        self.sollicitationsVoiles_PROV_faceINT = {"Moment ELS": max(d["Moment MAX"] for d in sollicitations_ELS_PROV if "Moment MAX" in d),
-                                                  "Moment ELU": max(d["Moment MAX"] for d in sollicitations_ELU_PROV if "Moment MAX" in d),
-                                                  "Tranchant ELS": max(d["Tranchant MAX"] for d in sollicitations_ELS_PROV if "Moment MAX" in d),
-                                                  "Tranchant ELU": max(d["Tranchant MAX"] for d in sollicitations_ELU_PROV if "Moment MAX" in d),
-                                                  "Normal ELS": V_PROV_ELS,
-                                                  "Normal ELU": V_PROV_ELU}
-        
-        self.sollicitationsVoiles_PROV_faceEXT = {"Moment ELS": max(d["Moment MIN"] for d in sollicitations_ELS_PROV if "Moment MIN" in d),
-                                                  "Moment ELU": max(d["Moment MIN"] for d in sollicitations_ELU_PROV if "Moment MIN" in d),
-                                                  "Tranchant ELS": max(d["Tranchant MIN"] for d in sollicitations_ELS_PROV if "Moment MIN" in d),
-                                                  "Tranchant ELU": max(d["Tranchant MIN"] for d in sollicitations_ELU_PROV if "Moment MIN" in d),
-                                                  "Normal ELS": V_PROV_ELS,
-                                                  "Normal ELU": V_PROV_ELU}
-        
-        self.sollicitationsVoiles_DEF_faceINT = {"Moment ELS": max(d["Moment MAX"] for d in sollicitations_ELS_DEF if "Moment MAX" in d),
-                                                 "Moment ELU": max(d["Moment MAX"] for d in sollicitations_ELU_DEF if "Moment MAX" in d),
-                                                 "Tranchant ELS": max(d["Tranchant MAX"] for d in sollicitations_ELS_DEF if "Moment MAX" in d),
-                                                 "Tranchant ELU": max(d["Tranchant MAX"] for d in sollicitations_ELU_DEF if "Moment MAX" in d),
-                                                 "Normal ELS": V_DEF_ELS,
-                                                 "Normal ELU": V_DEF_ELU}
-        
-        self.sollicitationsVoiles_DEF_faceEXT = {"Moment ELS": max(d["Moment MIN"] for d in sollicitations_ELS_DEF if "Moment MIN" in d),
-                                                 "Moment ELU": max(d["Moment MIN"] for d in sollicitations_ELU_DEF if "Moment MIN" in d),
-                                                 "Tranchant ELS": max(d["Tranchant MIN"] for d in sollicitations_ELS_DEF if "Moment MIN" in d),
-                                                 "Tranchant ELU": max(d["Tranchant MIN"] for d in sollicitations_ELU_DEF if "Moment MIN" in d),
-                                                 "Normal ELS": V_DEF_ELS,
-                                                 "Normal ELU": V_DEF_ELU}
+        def enveloppe(liste_els, liste_elu, cle_moment, cle_tranchant, n_els, n_elu):
+            """Enveloppe des sollicitations sur une face (max sur toutes les combinaisons)."""
+            return {"Moment ELS":    max(d[cle_moment]    for d in liste_els),
+                    "Moment ELU":    max(d[cle_moment]    for d in liste_elu),
+                    "Tranchant ELS": max(d[cle_tranchant] for d in liste_els),
+                    "Tranchant ELU": max(d[cle_tranchant] for d in liste_elu),
+                    "Normal ELS":    n_els,
+                    "Normal ELU":    n_elu}
+
+        self.sollicitationsVoiles_PROV_faceINT = enveloppe(sollicitations_ELS_PROV, sollicitations_ELU_PROV,
+                                                           "Moment MAX", "Tranchant MAX", V_PROV_ELS, V_PROV_ELU)
+        self.sollicitationsVoiles_PROV_faceEXT = enveloppe(sollicitations_ELS_PROV, sollicitations_ELU_PROV,
+                                                           "Moment MIN", "Tranchant MIN", V_PROV_ELS, V_PROV_ELU)
+        self.sollicitationsVoiles_DEF_faceINT  = enveloppe(sollicitations_ELS_DEF, sollicitations_ELU_DEF,
+                                                           "Moment MAX", "Tranchant MAX", V_DEF_ELS, V_DEF_ELU)
+        self.sollicitationsVoiles_DEF_faceEXT  = enveloppe(sollicitations_ELS_DEF, sollicitations_ELU_DEF,
+                                                           "Moment MIN", "Tranchant MIN", V_DEF_ELS, V_DEF_ELU)
         
         # get the laoding on the BN
         # First, create a list with the vertical reaction 
@@ -172,20 +162,20 @@ class Output(object):
         # get the maximum values at each position
         list_reaction_ELS = [max(elements) for elements in zip(*list_reaction_ELS)]
         list_reaction_ELU = [max(elements) for elements in zip(*list_reaction_ELU)]
-        print(list_reaction_ELS)
+
         # Create the output dict
         self.chargementBN_ELS = {(valeur + 1): {'Type': "Linear",
                                           'Charge': None,
                                           'xmin': None,
                                           'xmax': None,
-                                          'pmin': float(list_reaction_ELS[valeur].astype(float)),
-                                          'pmax': float(list_reaction_ELS[valeur].astype(float))}
+                                          'pmin': float(list_reaction_ELS[valeur].item()),
+                                          'pmax': float(list_reaction_ELS[valeur].item())}
                                     for valeur in range(len(list_reaction_ELS))}
         
         self.chargementBN_ELU = {(valeur + 1): {'Type': "Linear",
                                           'Charge': None,
                                           'xmin': None,
                                           'xmax': None,
-                                          'pmin': float(list_reaction_ELU[valeur].astype(float)),
-                                          'pmax': float(list_reaction_ELU[valeur].astype(float))}
+                                          'pmin': float(list_reaction_ELU[valeur].item()),
+                                          'pmax': float(list_reaction_ELU[valeur].item())}
                                     for valeur in range(len(list_reaction_ELU))}

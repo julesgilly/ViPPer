@@ -36,7 +36,9 @@ Note that the first layer in the 'sol' dictionary corresponds to the first real 
                     /_\                                                   /_\  
                      0                                                 wallLength
 """
+# Import modules
 import numpy as np
+import math as m
 
 class _sol(object):
 
@@ -72,9 +74,6 @@ class _sol(object):
         :return: A dictionary of the values of Ka for each ground layer
         :rtype: dict
         """
-
-        # Import modules
-        import math as m
         
         # Create an empty dictionary to store the values of Ka for each layer of soil
         Dict_Ka={}
@@ -96,9 +95,6 @@ class _sol(object):
         :return: A dictionary of the values of Kp for each ground layer
         :rtype: dict
         """
-        
-        # Import modules
-        import math as m
         
         # Create an empty dictionary to store the values of Ka for each layer of soil
         Dict_Kp={}
@@ -315,6 +311,7 @@ class _sol(object):
 
 
     @classmethod
+    # A reprendre !!!
     def butee(cls, sol, eau):
         """ This function computes the 'Contraintes horizontales en butée' using the same formula as for the 'Contraintes horizontales totales'
          (but Ka is replaced by Kp defined as: Kp = 1/Ka)
@@ -332,7 +329,7 @@ class _sol(object):
         sigma_h=cls.sigma_horizontale(sol, sigma_v, Liste_Kp)
         sigma_h_tot=cls.sigma_horizontale_tot(sigma_h, u)
         
-        # The resulting force is sigma_max*h/2 ???
+        # The resulting force is sigma_max*h/2
         return sigma_h_tot[len(sol)]['Contraintes horizontales totales'][-1]/2
 
 

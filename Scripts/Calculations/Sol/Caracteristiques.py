@@ -81,10 +81,12 @@ class caracteristiques(object):
         self.sol_DEF = sol_DEF
         self.sol_PROV = sol_PROV
 
+    @staticmethod
     def creation_liste_abscisse(pas, debut, fin):
         longueur = fin - debut
-        nb_points = int(longueur/pas)
+        # round() et non int(): int(0.29/0.01) == 28 par erreur d'arrondi flottant
+        nb_points = round(longueur / pas)
         Liste = [debut]
-        for i in range(1, nb_points+1):
+        for i in range(1, nb_points + 1):
             Liste.append(round(Liste[i - 1] + pas, 2))
         return Liste

@@ -25,6 +25,8 @@ Warning: sign convention!!
 for distributed loads, positive value means down
 for point loads, positive value means up for vertical load and counter clockwise for moment
 """
+import numpy as np
+
 class element(object):
     def __init__(self, BeamInfo, nom_fichier):
         self.extractInfo(BeamInfo)
@@ -40,14 +42,25 @@ class element(object):
         self.p = BeamInfo["distributedLoads"]
         self.P = BeamInfo["pointLoads"]
 
+    def _index_noeud(self, position, x):
+        """ Indice du noeud le plus proche de 'position'.
+        Remplace np.where(x == position): l'égalité exacte entre flottants
+        échoue dès que la position n'est pas parfaitement sur la grille. """
+        idx = int(np.argmin(np.abs(x - float(position))))
+        maille = x[1] - x[0]
+        if abs(x[idx] - float(position)) > maille / 2 + 1e-9:
+            raise ValueError(
+                f"Position {position} m absente de la grille "
+                f"(maille {maille:.4g} m, longueur {x[-1]:.4g} m)")
+        return idx
+
     def main(self):
-        import numpy as np
 
         # Pas FE
         maille = 0.01
 
         # number of nodes
-        nnodes = int(self.Length / maille) + 1
+        nnodes = round(self.Length / maille) + 1
 
         # number of elements
         nele = nnodes - 1
@@ -63,11 +76,8 @@ class element(object):
 
         # FE data
         nDOFs = 3 # number of DOFs per node
-        x = np.zeros(nnodes) # position of nodes
-        nodeDOFs = np.zeros((nnodes,3)) # DOFs associated at each nodes
-        for i in range(nnodes):
-            x[i] = i*maille
-            nodeDOFs[i,:] = np.array([[i*3, i*3+1, i*3+2]])
+        x = np.linspace(0.0, self.Length, nnodes) # position of nodes
+        nodeDOFs = np.arange(nnodes * 3).reshape(nnodes, 3) # DOFs associated at each nodes
 
         eleNumb = np.zeros((nele, 2), dtype = 'int32') # numbering of elements
         for i in range(nele):
@@ -75,22 +85,19 @@ class element(object):
             eleNumb[i,1] = int(i+2)
 
         # fixity
-        # Create empty fixity array
-        fixity = np.array([['nan', 'nan', 'nan']]*nnodes)
-        # Loop over the number of support 
+        # Tableau de flottants (np.nan = DDL libre) au lieu de chaînes de caractères
+        fixity = np.full((nnodes, 3), np.nan)
+        # Loop over the number of support
         for _, info in self.supports.items():
-            # Get the supported node number
-            index, = np.where(x == float(info['Position']))
-            # If statement to determine the type of support
+            idx = self._index_noeud(info['Position'], x)
             if info['Type'].lower() == "simply supported":
-                # Modify the fixity array for fixed DOFs
-                fixity[int(index),:] = np.array([[0, 0, 'nan']])
+                fixity[idx, :] = [0.0, 0.0, np.nan]
             elif info['Type'].lower() == "fixed":
-                # Modify the fixity array for fixed DOFs
-                fixity[int(index),:] = np.array([[0, 0, 0]])
+                fixity[idx, :] = [0.0, 0.0, 0.0]
             elif info['Type'].lower() == "roller":
-                # Modify the fixity array for fixed DOFs
-                fixity[int(index),:] = np.array([['nan', 0, 'nan']])
+                fixity[idx, :] = [np.nan, 0.0, np.nan]
+            else:
+                raise ValueError(f"Type d'appui inconnu: {info['Type']!r}")
         
         # distributed loads p = self.p
         p = np.zeros((len(self.p), 5), dtype = object)
@@ -99,26 +106,12 @@ class element(object):
 
         # support loads: P = pointLoads
         P = np.zeros((len(self.P), 2))
-        # Loop over the number of point loads
-        for id, info in self.P.items():
-            # Get the number of the node to which the load i is applied
-            index,=np.where(x == float(info['Position']))
-            # If statement to determine the type of point load
-            if info['Type'].lower() == "horizontal":
-                # Get the DOF associated with the type of load and the node
-                dof = int(nodeDOFs[int(index),0])
-                # Construct line i of the P array
-                P[id - 1,:] = np.array([[dof, info['P']]])
-            elif info['Type'].lower() == "vertical":
-                # Get the DOF associated with the type of load and the node
-                dof = int(nodeDOFs[int(index),1])
-                # Construct line i of the P array
-                P[id - 1,:] = np.array([[dof, info['P']]])
-            elif info['Type'].lower() == "moment":
-                # Get the DOF associated with the type of load and the node
-                dof = int(nodeDOFs[int(index),2])
-                # Construct line i of the P array
-                P[id - 1,:] = np.array([[dof, info['P']]])
+        # Colonne de nodeDOFs correspondant à chaque type de charge ponctuelle
+        colonne_ddl = {"horizontal": 0, "vertical": 1, "moment": 2}
+        for id_charge, info in self.P.items():
+            idx = self._index_noeud(info['Position'], x)
+            dof = int(nodeDOFs[idx, colonne_ddl[info['Type'].lower()]])
+            P[id_charge - 1, :] = [dof, info['P']]
         
         # Dictionaries
         self.elementInfo = {'length': self.Length,
