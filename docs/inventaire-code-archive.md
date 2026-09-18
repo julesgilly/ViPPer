@@ -1,6 +1,6 @@
 # Inventaire du code archivé
 
-Fichiers retirés de `master` lors de la phase 0 (septembre 2026) :
+Fichiers retirés de `main` lors de la phase 0 (septembre 2026) :
 
 - `Scripts/Calculations/Calculs8.py` — version 1 procédurale, non exécutable (importe `classes_projet`, absent).
 - `Scripts/Calculations/main_calculation.py` — script d'essais, plante (`NameError: wallLength`).
